@@ -1,0 +1,69 @@
+---
+title: "Efetivo rebanho de Santa Catarina"
+description: "Total e tipo de rebanho no estado de Santa Catarina no ano de 2021"
+author script: 
+  - name: "Ítalo Marques-Monteiro"
+    github: https://github.com/italomarquesmonteiro
+    kaggle: https://www.kaggle.com/talomarquesmonteiro
+    linkedin: linkedin.com/in/ítalo-monteiro-0b2516144
+    lattes: http://lattes.cnpq.br/7174985368517137
+    orcid_id: https://orcid.org/0000-0003-4367-1034
+    affiliation: Anhanguera College  
+        - Department: Veterinary Medicine
+date: "2023-04-10"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+   *package* [`{tidyverse}`](https://www.tidyverse.org) possui um ecossistema de packages:
+                           ->[{`ggplot2`}](https://ggplot2.tidyverse.org/).
+                            ->[{`tibble`}](https://tibble.tidyverse.org/).
+                             ->[{`tidyr`}](https://tidyr.tidyverse.org/).
+                              ->[{`dplyr`}](https://dplyr.tidyverse.org/).
+                               ->[{`readr`}](https://readr.tidyverse.org/).
+                                ->[{`purrr`}](https://purrr.tidyverse.org/).
+                                 ->[{`forcats`}](https://forcats.tidyverse.org/).
+   *package* [{`geobr`}](https://github.com/ipeaGIT/geobr). Tem fácil acesso a conjuntos de dados espaciais oficiais do Brasil como objetos 'sf' em R. O pacote inclui uma ampla gama de dados geoespaciais disponíveis em várias escalas geográficas e por vários anos com atributos harmonizados, projeção e topologia fixa.
+                 - Dados do Instituto Brasileiro de Geografia e Estatística[`IBGE`](https://concla.ibge.gov.br/classificacoes/por-tema/codigo-de-areas/codigo-de-areas)
+   *package* [{`sf`}](https://github.com/r-spatial/sf/). Suporte para recursos simples, uma maneira padronizada de codificar dados vetoriais espaciais.
+   *package* [{`tmap`}](https://github.com/r-tmap/tmap).Os mapas temáticos são mapas geográficos nos quais são visualizadas as distribuições de dados espaciais. Este pacote oferece uma abordagem flexível, baseada em camadas e fácil de usar para criar mapas temáticos, como coropléticos e mapas de bolhas.
+   *package* [{`ggrepel`}](https://github.com/slowkow/ggrepel). Fornece geoms de texto e rótulo para 'ggplot2' que ajudam a evitar rótulos de texto sobrepostos. Os rótulos se repelem e se afastam dos pontos de dados.
+
+Packages
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+library(geobr)
+library(ggrepel)
+library(sf)
+library(tmap)
+library(ggplot2)
+```
+
+ Preciso descobrir os codigos das regiões de Santa Catarina
+```{r}
+name_function = geobr::list_geobr()
+name_function |>
+    tibble::view()
+
+brasil <- geobr::read_state(code_state = "all", year = 2020) 
+brasil|>
+    tibble::view()
+
+sc <- geobr::read_state(code_state = 42, year = 2020)
+
+micro_sc = read_micro_region(code_micro = 42, year = 2020)
+ggplot(data = micro_sc)+
+  geom_sf(fill = "khaki1",
+          color = "black",
+          size = .15,
+          show.legend = F)+
+    geom_sf_label(aes(label=micro_regE$name_micro),label.padding = unit(0.8,"mm"), size =2 )+#geom_sf_label...
+
+  labs(x= "Longitude",
+         y= "Latitude")
+
+```
+
