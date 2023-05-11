@@ -41,12 +41,15 @@ library(tmap)
 
 
 ```{r}
-readr::read_csv("")
-
+readr::read_csv("efetivo_rebanho_sc.csv")
 ```
 
 
-```{r}
 
+```{r}
+efetivo <- readr::read_csv2("efetivo_rebanho.csv",
+                                        col_types = "ciiiiiiiiii",
+                                        locale = locale(decimal_mark = ",",
+                                        grouping_mark = ".")))
 ```
 
