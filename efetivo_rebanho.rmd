@@ -33,37 +33,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Packages
 ```{r}
-install.packages("tidyverse")
 library(tidyverse)
-library(geobr)
 library(ggrepel)
 library(sf)
 library(tmap)
-library(ggplot2)
 ```
 
- Preciso descobrir os codigos das regiões de Santa Catarina
+
 ```{r}
-name_function = geobr::list_geobr()
-name_function |>
-    tibble::view()
 
-brasil <- geobr::read_state(code_state = "all", year = 2020) 
-brasil|>
-    tibble::view()
+```
 
-sc <- geobr::read_state(code_state = 42, year = 2020)
 
-micro_sc = read_micro_region(code_micro = 42, year = 2020)
-ggplot(data = micro_sc)+
-  geom_sf(fill = "khaki1",
-          color = "black",
-          size = .15,
-          show.legend = F)+
-    geom_sf_label(aes(label=micro_regE$name_micro),label.padding = unit(0.8,"mm"), size =2 )+#geom_sf_label...
-
-  labs(x= "Longitude",
-         y= "Latitude")
+```{r}
 
 ```
 
