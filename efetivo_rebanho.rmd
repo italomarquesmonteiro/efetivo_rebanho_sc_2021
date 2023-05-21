@@ -27,29 +27,92 @@ knitr::opts_chunk$set(echo = TRUE)
                                  ->[{`forcats`}](https://forcats.tidyverse.org/).
    *package* [{`geobr`}](https://github.com/ipeaGIT/geobr). Tem fácil acesso a conjuntos de dados espaciais oficiais do Brasil como objetos 'sf' em R. O pacote inclui uma ampla gama de dados geoespaciais disponíveis em várias escalas geográficas e por vários anos com atributos harmonizados, projeção e topologia fixa.
                  - Dados do Instituto Brasileiro de Geografia e Estatística[`IBGE`](https://concla.ibge.gov.br/classificacoes/por-tema/codigo-de-areas/codigo-de-areas)
-   *package* [{`sf`}](https://github.com/r-spatial/sf/). Suporte para recursos simples, uma maneira padronizada de codificar dados vetoriais espaciais.
-   *package* [{`tmap`}](https://github.com/r-tmap/tmap).Os mapas temáticos são mapas geográficos nos quais são visualizadas as distribuições de dados espaciais. Este pacote oferece uma abordagem flexível, baseada em camadas e fácil de usar para criar mapas temáticos, como coropléticos e mapas de bolhas.
-   *package* [{`ggrepel`}](https://github.com/slowkow/ggrepel). Fornece geoms de texto e rótulo para 'ggplot2' que ajudam a evitar rótulos de texto sobrepostos. Os rótulos se repelem e se afastam dos pontos de dados.
 
-Packages
-```{r}
+```{r} 
 library(tidyverse)
-library(ggrepel)
-library(sf)
-library(tmap)
+library(geobr)
 ```
 
+
+Informações de dados geometricos 
+  
+```{r}
+municipios <- geobr::read_municipality(year = 2020) |>
+    dplyr::rename(id_municipio = code_muni) |>
+    dplyr::glimpse()
+```
+
+
+Diretório de trabalho
+```{r}
+setwd("C:/Users/italo/OneDrive/Área de Trabalho/VsCode/basedosdados/")
+```
+
+
+
+Dados coletados pelo [{`IBGE`}](https://www.ibge.gov.br)
+        -> Departamento: [{`Pesquisa pecuaria municipal`}](https://www.ibge.gov.br/estatisticas/economicas/agricultura-e-pecuaria/9107-producao-da-pecuaria-municipal.html?=&t=downloads)
+
+Dados tratados pela equipe [{`Base dos dados`}](https://basedosdados.org)
 
 ```{r}
-readr::read_csv("efetivo_rebanho_sc.csv")
+efetivo <- readr::read_csv("efetivo_rebanhos.csv") |>
+    dplyr::glimpse()
+
+
+df <- efetivo |>
+    dplyr::filter(ano == 2019 & tipo_rebanho == "Bovino")
 ```
 
 
+Join dos dados de efetivos de rebanho brasileiros (1974-2020), 
+        e informações geometricas do Brasil
+```{r}
+municipio <- municipio |>
+    dplyr::left_join(df) |>
+    dplyr::glimpse()
+```
 
 ```{r}
-efetivo <- readr::read_csv2("efetivo_rebanho.csv",
-                                        col_types = "ciiiiiiiiii",
-                                        locale = locale(decimal_mark = ",",
-                                        grouping_mark = ".")))
+municipio |>
+    dplyr::filter(name_state == "Santa Catarina") |>
+    dplyr::mutate(
+        numeros_cabeca = cut(
+            quantidade_animais,
+                    breaks = c(
+                      0, 1000, 5000, 10000, 30000, 50000, 60000, 80000, Inf),
+              labels = c("< 1000", "1001-10000", "10001-20000", "20001-30000",
+              "30001-40000", "40001-50000", "50001-60000", ">70000")
+                         )
+                    ) |>
+    ggplot2::ggplot() +
+    geom_sf(aes(fill = factor(numeros_cabeca))) +
+    scale_fill_viridis_d() +
+    theme(legend.position = c(0.25, 0.25),
+    panel.grid.major = element_line(colour = "gray95"),
+    panel.background = element_rect(fill = "gray95"),
+    legend.background = element_rect(
+        fill = "grey95", colour = "gray95", size = 1)) +
+    labs(
+        fill = "Número de cabeças",
+        x = "Longitude",
+        y = "Latitude") +
+    annotate("text", x = -51.7, y = -25.9, color = "gray30", size = 10,
+        label = "Efetivo rebanho bovino de Santa Catarina-BR") +
+    annotate("text", x = -53, y = -27.5, color = "gray40", size = 5,
+        label = "Pesquisa pecuária municipal (2019)") +
+    annotate("text", x = -53, y = -27.7,
+    label = "Source: IBGE [open data(2023)]
+    by Ítalo Monteiro" , color = "gray50") +
+    ggspatial::annotation_scale(
+      height = unit(0.2, "cm"),
+      pad_x = unit(10, "cm"),
+      pad_y = unit(2, "cm")) +
+    ggspatial::annotation_north_arrow(
+      width = unit(0.7, "cm"),
+      height = unit(0.9, "cm"),
+      pad_x = unit(13, "cm"),
+      pad_y = unit(3, "cm"))
 ```
+
 
